@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:sariska_chat_app_flutter/controller/chat_controller.dart';
+import 'package:sariska_chat_app_flutter/pages/chat_screen.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -13,9 +15,11 @@ class _LandingPageState extends State<LandingPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _userIdController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  ChatController chatController = ChatController();
 
   Future<void> _checkUserExistence() async {
     String username = _usernameController.text;
+    var token = await chatController.fetchToken(username);
 
     String apiUrl =
         'http://api.dev.sariska.io/api/v1/messaging/users/verify?search_term=$username';
@@ -25,8 +29,7 @@ class _LandingPageState extends State<LandingPage> {
         Uri.parse(apiUrl),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjM1YzVjMzMwYzgzMDlmNWE1MDNkMGE1Yzc0YmZmOGRhNzI2OGEzYWRiNTM0Y2I5YTYyYjljYzZiYmZjZGUwYTMiLCJ0eXAiOiJKV1QifQ.eyJjb250ZXh0Ijp7InVzZXIiOnsiaWQiOiJudnRqNnpyZSIsIm5hbWUiOiJuZXdfcGxhdHlwdXMifSwiZ3JvdXAiOiI5In0sInN1YiI6ImF2b241amN0bnBuMmQ5OHA0ZGVtdGYiLCJyb29tIjoiKiIsImlhdCI6MTcxMDEzNTc2NCwibmJmIjoxNzEwMTM1NzY0LCJpc3MiOiJzYXJpc2thIiwiYXVkIjoibWVkaWFfbWVzc2FnaW5nX2NvLWJyb3dzaW5nIiwiZXhwIjoxNzEwMjIyMTY0fQ.V6KycRM0WOzMtE-3Polfp6qaOm8UlmzsI9YVF8Wn3MXkjn0cObl0q59LV85sNIxUwg-i3SE57ACLukDvK9HURJwrXK_qrvmZV8cBZdzkYnSjIydVk2uIRnA4ENjosZaXpLQhfd5VM_k9gha1vL2n0WVeoOEsfz6euq288Y-8f7bIV8xOQ5wfVxB6tZGwYQ6Fy82XzUyH_OwpJBI0P8fBA5CqIm3rfIP492gH6BGHep9AwVDtoM9xnOjcibvNaEwELUSY6sbpRR2KfTpJRs5NbaYtb_hW3GZHQffBUUbrBpAkvB90WkjmkC7VaPfWHlehqaa7aT_rJIB4hdgTKS0IgA',
+          'Authorization': 'Bearer $token',
         },
       );
 
@@ -54,19 +57,35 @@ class _LandingPageState extends State<LandingPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Sign Up'),
+          title: Text(
+            'Sign Up',
+          ),
           content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: _userIdController,
-                decoration: const InputDecoration(
-                  labelText: 'User ID',
+                decoration: InputDecoration(
+                  labelText: 'Enter User ID',
+                  filled: true,
+                  fillColor: Colors.greenAccent.withOpacity(0.1),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
+              const SizedBox(height: 10),
               TextField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
+                decoration: InputDecoration(
+                  labelText: 'Enter Email',
+                  filled: true,
+                  fillColor: Colors.greenAccent.withOpacity(0.1),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                    borderSide: BorderSide.none,
+                  ),
                 ),
               ),
             ],
@@ -76,7 +95,19 @@ class _LandingPageState extends State<LandingPage> {
               onPressed: () {
                 _signUp();
               },
-              child: const Text('Sign Up'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.greenAccent,
+                padding: const EdgeInsets.symmetric(vertical: 15.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              child: const Text(
+                'Sign Up',
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         );
@@ -89,21 +120,25 @@ class _LandingPageState extends State<LandingPage> {
     String email = _emailController.text;
     String apiUrl =
         'http://api.dev.sariska.io/api/v1/messaging/users/register?user_id=$userId&email=$email';
-
+    var token = await chatController.fetchToken(userId);
     try {
       var response = await http.post(
         Uri.parse(apiUrl),
         headers: {
-          'Authorization':
-              'Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IjM1YzVjMzMwYzgzMDlmNWE1MDNkMGE1Yzc0YmZmOGRhNzI2OGEzYWRiNTM0Y2I5YTYyYjljYzZiYmZjZGUwYTMiLCJ0eXAiOiJKV1QifQ.eyJjb250ZXh0Ijp7InVzZXIiOnsiaWQiOiJudnRqNnpyZSIsIm5hbWUiOiJuZXdfcGxhdHlwdXMifSwiZ3JvdXAiOiI5In0sInN1YiI6ImF2b241amN0bnBuMmQ5OHA0ZGVtdGYiLCJyb29tIjoiKiIsImlhdCI6MTcxMDEzNTc2NCwibmJmIjoxNzEwMTM1NzY0LCJpc3MiOiJzYXJpc2thIiwiYXVkIjoibWVkaWFfbWVzc2FnaW5nX2NvLWJyb3dzaW5nIiwiZXhwIjoxNzEwMjIyMTY0fQ.V6KycRM0WOzMtE-3Polfp6qaOm8UlmzsI9YVF8Wn3MXkjn0cObl0q59LV85sNIxUwg-i3SE57ACLukDvK9HURJwrXK_qrvmZV8cBZdzkYnSjIydVk2uIRnA4ENjosZaXpLQhfd5VM_k9gha1vL2n0WVeoOEsfz6euq288Y-8f7bIV8xOQ5wfVxB6tZGwYQ6Fy82XzUyH_OwpJBI0P8fBA5CqIm3rfIP492gH6BGHep9AwVDtoM9xnOjcibvNaEwELUSY6sbpRR2KfTpJRs5NbaYtb_hW3GZHQffBUUbrBpAkvB90WkjmkC7VaPfWHlehqaa7aT_rJIB4hdgTKS0IgA',
+          'Authorization': 'Bearer $token',
         },
       );
 
       if (response.statusCode == 200) {
         Navigator.pop(context);
-        _navigateToNextPage();
+        Map<String, dynamic>? userData = {
+          'user_id': userId,
+          'email': email,
+        };
+        _navigateToNextPage(userData);
       } else {
         print('Registration failed. Status code: ${response.statusCode}');
+        print('Registration failed with error message ' + response.body);
       }
     } catch (error) {
       print('Error registering user: $error');
@@ -115,6 +150,15 @@ class _LandingPageState extends State<LandingPage> {
     if (userData != null) {
       print('User ID: ${userData['user_id']}');
       print('Email: ${userData['email']}');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatScreen(
+            username: userData['user_id'],
+            email: userData['email'],
+          ),
+        ),
+      );
     }
   }
 
@@ -122,7 +166,17 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Landing Page'),
+        elevation: 4,
+        shadowColor: Colors.black,
+        title: const Text(
+          'Sariska.io',
+          style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.5),
+        ),
+        backgroundColor:
+            Colors.greenAccent, // Apply greenAccent color to app bar
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -131,8 +185,14 @@ class _LandingPageState extends State<LandingPage> {
           children: [
             TextField(
               controller: _usernameController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Enter Username',
+                filled: true,
+                fillColor: Colors.greenAccent.withOpacity(0.1),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                  borderSide: BorderSide.none,
+                ),
               ),
             ),
             const SizedBox(height: 20.0),
@@ -140,11 +200,48 @@ class _LandingPageState extends State<LandingPage> {
               onPressed: () {
                 _checkUserExistence();
               },
-              child: const Text('Submit'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.greenAccent,
+                padding: const EdgeInsets.symmetric(vertical: 15.0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+              ),
+              child: const Text(
+                'Submit',
+                style: TextStyle(
+                  color: Colors.white,
+                ), // Text color as white for better contrast
+              ),
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+class MyClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    var path = Path();
+    path.lineTo(0, size.height);
+    // path.lineTo(0, size.height); //starting point
+
+    var controllPoint = Offset(size.width / 5, size.height / 2);
+    // var controllPoint =
+    //     Offset(size.width / 2, size.height); // point from where the curve start
+    var endPoint =
+        Offset(size.width, size.height); // point where the curve ends
+    path.quadraticBezierTo(
+        controllPoint.dx, controllPoint.dy, controllPoint.dx, controllPoint.dy);
+    path.lineTo(size.width, size.height);
+    path.lineTo(size.width, 0);
+    return path;
+  }
+
+  @override
+  bool shouldReclip(covariant CustomClipper<Path> oldClipper) {
+    return true;
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/chat_screen.dart';
+import 'package:sariska_chat_app_flutter/pages/landing_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +14,9 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.greenAccent),
       ),
-      home: const ChatScreen(),
+      home: const LandingPage(),
     );
   }
 }
+
+
