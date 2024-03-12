@@ -90,8 +90,6 @@ class _LandingPageState extends State<LandingPage> {
   Future<void> _signUp() async {
     String userId = _userIdController.text;
     String email = _emailController.text;
-
-    // Replace this with your actual API endpoint for user registration
     String apiUrl = 'http://api.dev.sariska.io/api/v1/messaging/users/register?user_id=$userId&email=$email';
 
     try {
@@ -119,7 +117,6 @@ class _LandingPageState extends State<LandingPage> {
   void _navigateToNextPage([Map<String, dynamic>? userData]) {
     // Implement navigation to the next page here
     print('Navigating to the next page');
-
     // If you have user data, you can use it in the next page
     if (userData != null) {
       print('User ID: ${userData['user_id']}');
