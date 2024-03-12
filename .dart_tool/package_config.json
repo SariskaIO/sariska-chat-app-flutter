@@ -68,6 +68,18 @@
       "languageVersion": "3.2"
     },
     {
+      "name": "flutter_web_plugins",
+      "rootUri": "file:///opt/homebrew/Caskroom/flutter/3.16.2/flutter/packages/flutter_web_plugins",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "fluttertoast",
+      "rootUri": "file:///Users/gaurair/.pub-cache/hosted/pub.dev/fluttertoast-8.2.4",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "get",
       "rootUri": "file:///Users/gaurair/.pub-cache/hosted/pub.dev/get-4.6.6",
       "packageUri": "lib/",
@@ -224,7 +236,7 @@
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-03-11T06:29:47.452028Z",
+  "generated": "2024-03-12T05:01:53.625147Z",
   "generator": "pub",
   "generatorVersion": "3.3.1"
 }

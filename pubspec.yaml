@@ -40,6 +40,7 @@ dependencies:
   web_socket_channel: 2.4.4
   get: 4.6.6
   intl: 0.17.0
+  fluttertoast: 8.2.4
 
 dev_dependencies:
   flutter_test:

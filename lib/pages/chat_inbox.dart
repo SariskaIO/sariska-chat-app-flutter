@@ -4,9 +4,10 @@ import 'package:intl/intl.dart';
 import 'package:sariska_chat_app_flutter/controller/chat_controller.dart';
 
 class ChatInbox extends StatefulWidget {
-  const ChatInbox({super.key, required this.roomName});
-
+  const ChatInbox({super.key, required this.roomName, required this.userName});
   final String roomName;
+  final String userName;
+
   @override
   State<ChatInbox> createState() => _ChatInboxState();
 }
@@ -16,8 +17,9 @@ class _ChatInboxState extends State<ChatInbox> {
 
   @override
   void initState() {
-    chatController = Get.find();
-    chatController.connectSocket(widget.roomName);
+    chatController = ChatController();
+    chatController.connectSocket(widget.roomName, widget.userName);
+    // chatController.fetchMessage(widget.roomName, widget.userName);
     // chatController.FetchRooms("dummyUserName");
     super.initState();
   }
@@ -27,7 +29,7 @@ class _ChatInboxState extends State<ChatInbox> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.greenAccent,
-        title: Text("Room Name: ${widget.roomName}"),
+        title: Text(widget.roomName),
       ),
       body: Container(
         padding: const EdgeInsets.all(25),
@@ -45,7 +47,6 @@ class _ChatInboxState extends State<ChatInbox> {
               () => Expanded(
                 child: Scrollbar(
                   child: ListView.builder(
-                    // controller: lobbyPageController.scrollController,
                     physics: const BouncingScrollPhysics(),
                     shrinkWrap: true,
                     itemCount: chatController.messages.length,
@@ -75,39 +76,52 @@ class _ChatInboxState extends State<ChatInbox> {
                                   ),
                                 ),
                               ),
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: !chatController
-                                          .messages[index].isSender
-                                      ? const BorderRadius.only(
-                                          topRight: Radius.circular(6),
-                                          bottomRight: Radius.circular(6),
-                                          bottomLeft: Radius.circular(6),
-                                          topLeft: Radius.circular(6),
-                                        )
-                                      : const BorderRadius.only(
-                                          topRight: Radius.circular(8),
-                                          bottomRight: Radius.circular(10),
-                                          bottomLeft: Radius.circular(8),
-                                          topLeft: Radius.elliptical(-80, 1),
-                                        ),
-                                  color: chatController.messages[index].isSender
-                                      ? Colors.green
-                                      : Colors.greenAccent,
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    chatController.messages[index].message,
-                                    style: TextStyle(
+                              Row(
+                                mainAxisAlignment:
+                                    chatController.messages[index].isSender
+                                        ? MainAxisAlignment.start
+                                        : MainAxisAlignment.end,
+                                children: [
+                                  CircleAvatar(
+                                    child: Text(chatController
+                                        .messages[index].userName
+                                        .substring(0, 1)),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.only(
+                                        topRight: chatController
+                                                .messages[index].isSender
+                                            ? const Radius.circular(8)
+                                            : const Radius.circular(10),
+                                        bottomRight: chatController
+                                                .messages[index].isSender
+                                            ? const Radius.circular(10)
+                                            : const Radius.circular(8),
+                                        bottomLeft: const Radius.circular(8),
+                                        topLeft: const Radius.circular(8),
+                                      ),
                                       color: chatController
                                               .messages[index].isSender
-                                          ? Colors.greenAccent.withOpacity(0.3)
-                                          : Colors.white,
-                                      fontSize: 16,
+                                          ? Colors.greenAccent
+                                          : Colors.greenAccent,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Text(
+                                        chatController.messages[index].message,
+                                        style: TextStyle(
+                                          color: chatController
+                                                  .messages[index].isSender
+                                              ? Colors.white
+                                              : Colors.white,
+                                          fontSize: 16,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
+                                ],
                               ),
                             ],
                           ),
