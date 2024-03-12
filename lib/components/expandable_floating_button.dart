@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:flutter_iconly/flutter_iconly.dart';
 
 @immutable
 class ExpandableFab extends StatefulWidget {
@@ -133,7 +134,7 @@ class _ExpandableFabState extends State<ExpandableFab>
           duration: const Duration(milliseconds: 250),
           child: FloatingActionButton(
             onPressed: _toggle,
-            child: const Icon(Icons.message_outlined),
+            child: const Icon(IconlyLight.chat),
           ),
         ),
       ),

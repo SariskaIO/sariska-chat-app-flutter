@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:get/get.dart';
+import 'package:sariska_chat_app_flutter/components/app_colors.dart';
 import '../controller/chat_controller.dart';
-import 'chat_inbox.dart';
+import 'chat_window.dart';
 import '../components/expandable_floating_button.dart';
 import 'package:intl/intl.dart';
 
@@ -21,17 +23,19 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  ChatController chatController = Get.put(ChatController());
   int currentPage = 1;
 
   static const _actionTitles = ['Create Group', 'Start Chat', 'Join Group'];
 
   Timer? _timer;
 
+  late ChatController chatController;
+
   @override
   void initState() {
     super.initState();
-    //chatController.FetchRooms("dummyUserName");
+    chatController = Get.put(ChatController());
+    chatController.fetchRooms(widget.username, widget.email);
     _startTimer();
   }
 
@@ -42,86 +46,94 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
       _refreshList();
     });
   }
 
   void _refreshList() {
-    //chatController.FetchRooms("dummyUserName");
+    chatController.fetchRooms(widget.username, widget.email);
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        elevation: 3,
-        shadowColor: Colors.black,
-        backgroundColor: Colors.greenAccent,
-        title: const Text("Sariska.io chat"),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              shrinkWrap: true,
-              itemCount: 6,
-              itemBuilder: (context, index) {
-                return Column(
-                  children: [
-                    ListTile(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChatInbox(
-                              roomName: "saso",
-                              userName: widget.username,
+    return WillPopScope(
+      onWillPop: () async {
+        await Get.deleteAll();
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          elevation: 3,
+          shadowColor: Colors.black,
+          backgroundColor: AppColors.colorPrimary,
+          title: const Text("Sariska.io chat"),
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: chatController.rooms.rooms!.length,
+                itemBuilder: (context, index) {
+                  return Column(
+                    children: [
+                      ListTile(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatInbox(
+                                roomName: chatController.rooms.rooms![index],
+                                userName: widget.username,
+                                isGroup: true,
+                                email: widget.email,
+                              ),
                             ),
+                          );
+                        },
+                        leading: CircleAvatar(
+                          backgroundColor: AppColors.colorPrimary,
+                          child: Text(
+                            chatController.rooms.rooms![index].substring(0, 1),
                           ),
-                        );
-                      },
-                      leading: const CircleAvatar(
-                        backgroundColor: Colors.greenAccent,
-                        child: Text("G"),
+                        ),
+                        title: Text(chatController.rooms.rooms![index]),
+                        subtitle: Text(
+                          "hi there, wassup 👋",
+                          style: TextStyle(
+                              fontWeight: index % 2 == 0
+                                  ? FontWeight.bold
+                                  : FontWeight.w100),
+                        ),
+                        trailing: Text(
+                            DateFormat.Hm().format(DateTime.now()).toString()),
                       ),
-                      title: index % 2 == 0
-                          ? const Text("BTR Esports Group")
-                          : const Text("Enies Lobby"),
-                      subtitle: Text(
-                        "hi there, wassup 👋",
-                        style: TextStyle(
-                            fontWeight: index % 2 == 0
-                                ? FontWeight.bold
-                                : FontWeight.w100),
-                      ),
-                      trailing: Text(
-                          DateFormat.Hm().format(DateTime.now()).toString()),
-                    ),
-                    const Divider(
-                      thickness: 0.3,
-                    )
-                  ],
-                );
-              },
+                      const Divider(
+                        thickness: 0.3,
+                      )
+                    ],
+                  );
+                },
+              ),
+            )
+          ],
+        ),
+        floatingActionButton: ExpandableFab(
+          distance: 112,
+          children: [
+            ActionButton(
+              onPressed: () => _createGroup(context, 0),
+              icon: const Icon(IconlyLight.user3),
             ),
-          )
-        ],
-      ),
-      floatingActionButton: ExpandableFab(
-        distance: 112,
-        children: [
-          ActionButton(
-            onPressed: () => _createGroup(context, 0),
-            icon: const Icon(Icons.people),
-          ),
-          ActionButton(
-            onPressed: () => _startInboxChat(context, 1),
-            icon: const Icon(Icons.message_rounded),
-          ),
-        ],
+            ActionButton(
+              onPressed: () => _startInboxChat(context, 1),
+              icon: const Icon(IconlyLight.message),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -149,30 +161,17 @@ class _ChatScreenState extends State<ChatScreen> {
                       const SizedBox(
                         height: 20,
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xfff2edf9),
-                          borderRadius: BorderRadius.circular(5),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.4),
-                              spreadRadius: 1,
-                              blurRadius: 2,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextField(
-                            controller: chatController.typedGroupName,
-                            decoration: const InputDecoration(
-                              hintText: "Enter group name",
-                              border: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: chatController.typedGroupName,
+                          decoration: InputDecoration(
+                            labelText: 'Enter Group Name',
+                            filled: true,
+                            fillColor: AppColors.colorPrimary.withOpacity(0.3),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide.none,
                             ),
                           ),
                         ),
@@ -180,31 +179,17 @@ class _ChatScreenState extends State<ChatScreen> {
                       const SizedBox(
                         height: 20,
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: const Color(0xfff2edf9),
-                          borderRadius: BorderRadius.circular(5),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.4),
-                              spreadRadius: 1,
-                              blurRadius: 2,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: TextField(
-                            controller: emailController,
-                            decoration: const InputDecoration(
-                              hintText:
-                                  "Enter member's emails separated by commas",
-                              border: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              errorBorder: InputBorder.none,
-                              disabledBorder: InputBorder.none,
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextField(
+                          controller: emailController,
+                          decoration: InputDecoration(
+                            labelText: 'email(s),separated by ","',
+                            filled: true,
+                            fillColor: AppColors.colorPrimary.withOpacity(0.3),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                              borderSide: BorderSide.none,
                             ),
                           ),
                         ),
@@ -219,8 +204,7 @@ class _ChatScreenState extends State<ChatScreen> {
             TextButton(
               onPressed: () {
                 String groupName = chatController.typedGroupName.text;
-                List<String> memberEmails = emailController.text.split(',');
-
+                // List<String> memberEmails = emailController.text.split(',');
                 // chatController.addGroupMembers(
                 //     widget.username, widget.email, memberEmails);
 
@@ -230,6 +214,8 @@ class _ChatScreenState extends State<ChatScreen> {
                     builder: (context) => ChatInbox(
                       roomName: groupName,
                       userName: widget.username,
+                      isGroup: true,
+                      email: widget.email,
                     ),
                   ),
                 );
@@ -263,31 +249,17 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(
                   height: 30,
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xfff2edf9),
-                    borderRadius: BorderRadius.circular(5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.4),
-                        spreadRadius: 1,
-                        blurRadius: 2,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextField(
-                      controller: chatController.typedEmail,
-                      decoration: InputDecoration(
-                        labelText: 'Enter Email',
-                        filled: true,
-                        fillColor: Colors.greenAccent.withOpacity(0.1),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                          borderSide: BorderSide.none,
-                        ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: chatController.typedEmail,
+                    decoration: InputDecoration(
+                      labelText: 'Enter User Email',
+                      filled: true,
+                      fillColor: AppColors.colorPrimary.withOpacity(0.1),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                        borderSide: BorderSide.none,
                       ),
                     ),
                   ),
@@ -298,7 +270,11 @@ class _ChatScreenState extends State<ChatScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                chatController.searchUserEmail("gaurav", context);
+                chatController.searchUserEmail(
+                  "gaurav",
+                  widget.email,
+                  context,
+                );
               },
               child: const Text('Start Chat'),
             ),
