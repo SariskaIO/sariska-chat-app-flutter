@@ -35,27 +35,8 @@ class ChatInbox extends StatefulWidget {
 class _ChatInboxState extends State<ChatInbox> {
   @override
   void initState() {
-    print("My tOKEN : ${widget.token}");
-    connectSocket(
-      widget.roomName,
-      widget.userName,
-      widget.email,
-    );
-    if (widget.memberEmails != null) {
-      print("Iam insdie init state chat window");
-      print("User name: " + widget.userName);
-      print("Email: " + widget.email);
-      print("Room name: " + widget.roomName);
-      print("memberEmails: ");
-      print(widget.memberEmails);
-      addGroupMembers(
-        widget.userName,
-        widget.email,
-        widget.memberEmails,
-        widget.roomName,
-        widget.token,
-      );
-    }
+    print("Chat inbox tOKEN : ${widget.token}");
+    connectSocket(widget.roomName, widget.userName, widget.email, widget.token);
     super.initState();
   }
 
@@ -115,8 +96,8 @@ class _ChatInboxState extends State<ChatInbox> {
   TextEditingController typedMessage = TextEditingController();
   List<Message> messages = <Message>[].obs;
 
-  connectSocket(String roomName, String userName, String email) async {
-    var token = await fetchToken(userName, email);
+  connectSocket(
+      String roomName, String userName, String email, var token) async {
     final options = PhoenixSocketOptions(params: {"token": token});
     final socket = PhoenixSocket(
       "wss://api.dev.sariska.io/api/v1/messaging/websocket",
@@ -128,6 +109,21 @@ class _ChatInboxState extends State<ChatInbox> {
     _channel.on("new_message", takeMessage);
     _channel.on("archived_message", takeArchivedMessage);
     _channel.join();
+    if (widget.memberEmails != null) {
+      print("Iam insdie init state chat window");
+      print("User name: " + widget.userName);
+      print("Email: " + widget.email);
+      print("Room name: " + widget.roomName);
+      print("memberEmails: ");
+      print(widget.memberEmails);
+      addGroupMembers(
+        widget.userName,
+        widget.email,
+        widget.memberEmails,
+        widget.roomName,
+        widget.token,
+      );
+    }
   }
 
   Future<String> fetchToken(String userName, String email) async {
@@ -256,9 +252,13 @@ class _ChatInboxState extends State<ChatInbox> {
                                 onPressed: () {
                                   List<String> memberEmails =
                                       emailController.text.split(',');
-                                  // chatController.addGroupMembers(
-                                  //     widget.username, widget.email, memberEmails);
-
+                                  addGroupMembers(
+                                    widget.userName,
+                                    widget.email,
+                                    widget.memberEmails,
+                                    widget.roomName,
+                                    widget.token,
+                                  );
                                   Navigator.pop(context);
                                 },
                                 child: const Text('Add member'),

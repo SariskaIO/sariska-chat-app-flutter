@@ -271,8 +271,12 @@ class _ChatScreenState extends State<ChatScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                chatController.searchUserEmail(widget.username,
-                    chatController.typedEmail.text, context, widget.token);
+                chatController.searchUserEmail(
+                    widget.username,
+                    chatController.typedEmail.text,
+                    context,
+                    widget.token,
+                    widget.email);
               },
               child: const Text('Start Chat'),
             ),
