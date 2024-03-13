@@ -255,7 +255,7 @@ class _ChatInboxState extends State<ChatInbox> {
                                   addGroupMembers(
                                     widget.userName,
                                     widget.email,
-                                    widget.memberEmails,
+                                    memberEmails,
                                     widget.roomName,
                                     widget.token,
                                   );
