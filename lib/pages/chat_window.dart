@@ -6,23 +6,27 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:phoenix_wings/phoenix_wings.dart';
 import 'package:sariska_chat_app_flutter/components/app_colors.dart';
+import 'package:sariska_chat_app_flutter/controller/chat_controller.dart';
 import 'package:sariska_chat_app_flutter/model/chat_model.dart';
 import 'package:http/http.dart' as http;
 
 class ChatInbox extends StatefulWidget {
-  ChatInbox({
-    super.key,
-    required this.roomName,
-    required this.userName,
-    required this.isGroup,
-    required this.email,
-    required this.token,
-  });
+  ChatInbox(
+      {super.key,
+      required this.roomName,
+      required this.userName,
+      required this.isGroup,
+      required this.email,
+      required this.token,
+      this.memberEmails,
+      this.chatController});
   final String roomName;
   final String userName;
   final bool isGroup;
   final String email;
+  final List<String>? memberEmails;
   var token;
+  final ChatController? chatController;
 
   @override
   State<ChatInbox> createState() => _ChatInboxState();
@@ -36,7 +40,66 @@ class _ChatInboxState extends State<ChatInbox> {
       widget.userName,
       widget.email,
     );
+    if (widget.memberEmails != null) {
+      addGroupMembers(
+        widget.userName,
+        widget.email,
+        widget.memberEmails,
+        widget.roomName,
+        widget.token,
+      );
+    }
     super.initState();
+  }
+
+  Future<void> addGroupMembers(String userName, String email,
+      List<String>? memberEmails, String roomName, var token) async {
+    print("addGroupMembers called");
+    print(userName);
+    print(email);
+    print(memberEmails);
+    print(roomName);
+    print("Token: $token");
+    try {
+      for (var i = 0; i < memberEmails!.length; i++) {
+        String apiUrl =
+            'http://api.dev.sariska.io/api/v1/messaging/rooms/$roomName/users/${memberEmails[i]}';
+        var response = await http.post(
+          Uri.parse(apiUrl),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+        var data = json.decode(response.body);
+        print("Add Group Members: ");
+        print(data);
+        print(response.body);
+        if (response.statusCode == 200) {
+          Fluttertoast.showToast(
+            msg: "Member with email ${memberEmails[i]} added successfully",
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.green,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        } else {
+          Fluttertoast.showToast(
+            msg: data['message'],
+            toastLength: Toast.LENGTH_LONG,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        }
+      }
+    } catch (error) {
+      print('Error adding group members: $error');
+    }
   }
 
   late PhoenixChannel _channel;
@@ -118,6 +181,8 @@ class _ChatInboxState extends State<ChatInbox> {
     return WillPopScope(
       onWillPop: () async {
         messages.clear();
+        widget.chatController!
+            .fetchRooms(widget.email, widget.userName, widget.token);
         return true;
       },
       child: Scaffold(

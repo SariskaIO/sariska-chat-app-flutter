@@ -18,47 +18,6 @@ class ChatController extends GetxController {
 
   late String userName;
 
-  Future<void> addGroupMembers(String userName, String email,
-      List<String> memberEmails, String roomName, var token) async {
-    try {
-      for (var i = 0; i < memberEmails.length; i++) {
-        String apiUrl =
-            'http://api.dev.sariska.io/api/v1/messaging/rooms/$roomName/users/${memberEmails[i]}';
-        var response = await http.post(
-          Uri.parse(apiUrl),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-        );
-        var data = json.decode(response.body);
-        if (response.statusCode == 200) {
-          Fluttertoast.showToast(
-            msg: "Member with email ${memberEmails[i]} added successfully",
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.green,
-            textColor: Colors.white,
-            fontSize: 16.0,
-          );
-        } else {
-          Fluttertoast.showToast(
-            msg: data['message'],
-            toastLength: Toast.LENGTH_LONG,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 1,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-            fontSize: 16.0,
-          );
-        }
-      }
-    } catch (error) {
-      print('Error adding group members: $error');
-    }
-  }
-
   late Rooms rooms = Rooms(rooms: []);
 
   Future<void> fetchRooms(String email, String userName, var token) async {
@@ -83,10 +42,9 @@ class ChatController extends GetxController {
     }
   }
 
-  Future<void> searchUserEmail(String userName, String email,
-      BuildContext context, var token, ChatController chatController) async {
+  Future<void> searchUserEmail(
+      String userName, String email, BuildContext context, var token) async {
     try {
-      // var token = await fetchToken(userName, email);
       String apiUrl =
           'http://api.dev.sariska.io/api/v1/messaging/users/verify?search_term=$email';
 
@@ -103,7 +61,6 @@ class ChatController extends GetxController {
       print(result);
       bool isExist = result["exists"];
       Map<String, dynamic>? userData = result['user'];
-
       if (isExist) {
         var otherUserName = userData!['name'];
         var roomName = _generateRoomName(userName, otherUserName);
@@ -129,6 +86,7 @@ class ChatController extends GetxController {
           textColor: Colors.white,
           fontSize: 16.0,
         );
+        Navigator.pop(context);
       }
     } catch (error) {
       print('Error searching user email: $error');
@@ -138,7 +96,7 @@ class ChatController extends GetxController {
 
   String _generateRoomName(String userName1, String userName2) {
     var sortedUsernames = [userName1, userName2]..sort();
-    return sortedUsernames.join(',');
+    return sortedUsernames.join('+');
   }
 
   late PhoenixChannel _channel;
@@ -163,7 +121,7 @@ class ChatController extends GetxController {
   Future<String> fetchToken(String userName, String email) async {
     try {
       final body = jsonEncode({
-        'apiKey': "{api-ley}",
+        'apiKey': "{api-key}",
         'user': {
           'id': email,
           'name': userName,

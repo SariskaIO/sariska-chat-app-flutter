@@ -48,13 +48,17 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
       _refreshList();
     });
   }
 
   void _refreshList() {
-    // chatController.fetchRooms( widget.email,widget.username);
+    chatController.fetchRooms(
+      widget.email,
+      widget.username,
+      widget.token,
+    );
     setState(() {});
   }
 
@@ -93,6 +97,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 isGroup: true,
                                 email: widget.email,
                                 token: widget.token,
+                                chatController: chatController,
                               ),
                             ),
                           );
@@ -104,13 +109,13 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         ),
                         title: Text(chatController.rooms.rooms![index]),
-                        subtitle: Text(
-                          "hi there, wassup 👋",
-                          style: TextStyle(
-                              fontWeight: index % 2 == 0
-                                  ? FontWeight.bold
-                                  : FontWeight.w100),
-                        ),
+                        // subtitle: Text(
+                        //   "",
+                        //   style: TextStyle(
+                        //       fontWeight: index % 2 == 0
+                        //           ? FontWeight.bold
+                        //           : FontWeight.w100),
+                        // ),
                         trailing: Text(
                             DateFormat.Hm().format(DateTime.now()).toString()),
                       ),
@@ -217,15 +222,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       isGroup: true,
                       email: widget.email,
                       token: widget.token,
+                      memberEmails: memberEmails,
+                      chatController: chatController,
                     ),
                   ),
-                );
-                await chatController.addGroupMembers(
-                  widget.username,
-                  widget.email,
-                  memberEmails,
-                  groupName,
-                widget.token
                 );
               },
               child: const Text('Create group'),
@@ -278,12 +278,8 @@ class _ChatScreenState extends State<ChatScreen> {
           actions: [
             TextButton(
               onPressed: () {
-                chatController.searchUserEmail(
-                    widget.username,
-                    chatController.typedEmail.text,
-                    context,
-                    widget.token,
-                    chatController);
+                chatController.searchUserEmail(widget.username,
+                    chatController.typedEmail.text, context, widget.token);
               },
               child: const Text('Start Chat'),
             ),
