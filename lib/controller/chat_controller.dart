@@ -17,10 +17,10 @@ class ChatController extends GetxController {
   TextEditingController typedGroupName = TextEditingController();
 
   late String userName;
-
   late Rooms rooms = Rooms(rooms: []);
 
   Future<void> fetchRooms(String email, String userName, var token) async {
+    print("Fetch room: ");
     try {
       var url =
           "http://api.dev.sariska.io/api/v1/messaging/rooms/fetch?email=$email";
@@ -64,7 +64,7 @@ class ChatController extends GetxController {
       if (isExist) {
         var otherUserName = userData!['name'];
         var roomName = _generateRoomName(userName, otherUserName);
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => ChatInbox(
@@ -118,7 +118,10 @@ class ChatController extends GetxController {
     this.userName = userName;
   }
 
-  Future<String> fetchToken(String userName, String email) async {
+  Future<String> fetchToken(String? userName, String email) async {
+    print("Chat Controller:");
+    print("Email $email");
+    print("Username $userName");
     try {
       final body = jsonEncode({
         'apiKey': "{api-key}",

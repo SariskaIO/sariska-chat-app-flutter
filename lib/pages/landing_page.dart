@@ -23,12 +23,8 @@ class _LandingPageState extends State<LandingPage> {
   ChatController chatController = ChatController();
 
   Future<void> _checkUserExistence() async {
-    String username = _usernameController.text; // this is email
-
-    var token = await chatController.fetchToken(
-      username,
-      _emailController.text,
-    );
+    String username = _usernameController.text; // NOTE: this is email
+    var token = await chatController.fetchToken(null, username);
 
     String apiUrl =
         'http://api.dev.sariska.io/api/v1/messaging/users/verify?search_term=$username';
@@ -48,7 +44,8 @@ class _LandingPageState extends State<LandingPage> {
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         if (data['exists']) {
-          _navigateToNextPage(data['user'], token);
+          _usernameController.clear();
+          _navigateToNextPage(data['user']);
         } else {
           _showSignUpForm();
         }
@@ -163,7 +160,7 @@ class _LandingPageState extends State<LandingPage> {
           'name': userId,
           'id': email,
         };
-        _navigateToNextPage(userData, token);
+        _navigateToNextPage(userData);
       } else {
         print('Registration failed. Status code: ${response.statusCode}');
         print('Registration failed with error message ' + response.body);
@@ -173,7 +170,7 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
-  void _navigateToNextPage(Map<String, dynamic>? userData, var token) {
+  void _navigateToNextPage(Map<String, dynamic>? userData) async {
     print('Navigating to the next page');
     print("User data values: ");
     print(userData);
@@ -181,6 +178,8 @@ class _LandingPageState extends State<LandingPage> {
     if (userData != null) {
       print('User ID: ${userData['user_id']}');
       print('Email: ${userData['email']}');
+      var token =
+          await chatController.fetchToken(userData['name'], userData['id']);
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -278,7 +277,7 @@ class _LandingPageState extends State<LandingPage> {
                         color: Colors.black,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                      ), // Text color as white for better contrast
+                      ),
                     ),
                   ),
                 ),

@@ -24,7 +24,6 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  int currentPage = 1;
   static const _actionTitles = ['Create Group', 'Start Chat'];
   Timer? _timer;
   late ChatController chatController;
@@ -48,7 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _refreshList();
     });
   }
@@ -94,7 +93,8 @@ class _ChatScreenState extends State<ChatScreen> {
                               builder: (context) => ChatInbox(
                                 roomName: chatController.rooms.rooms![index],
                                 userName: widget.username,
-                                isGroup: true,
+                                isGroup: !chatController.rooms.rooms![index]
+                                    .contains("+"),
                                 email: widget.email,
                                 token: widget.token,
                                 chatController: chatController,
@@ -109,13 +109,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         ),
                         title: Text(chatController.rooms.rooms![index]),
-                        // subtitle: Text(
-                        //   "",
-                        //   style: TextStyle(
-                        //       fontWeight: index % 2 == 0
-                        //           ? FontWeight.bold
-                        //           : FontWeight.w100),
-                        // ),
                         trailing: Text(
                             DateFormat.Hm().format(DateTime.now()).toString()),
                       ),
@@ -148,7 +141,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void _createGroup(BuildContext context, int index) {
     TextEditingController emailController = TextEditingController();
-
     showDialog<void>(
       context: context,
       builder: (context) {
@@ -213,7 +205,8 @@ class _ChatScreenState extends State<ChatScreen> {
               onPressed: () async {
                 String groupName = chatController.typedGroupName.text;
                 List<String> memberEmails = emailController.text.split(',');
-                Navigator.push(
+                chatController.rooms.rooms!.add(groupName);
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ChatInbox(

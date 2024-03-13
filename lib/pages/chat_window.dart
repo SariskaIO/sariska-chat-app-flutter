@@ -35,12 +35,19 @@ class ChatInbox extends StatefulWidget {
 class _ChatInboxState extends State<ChatInbox> {
   @override
   void initState() {
+    print("My tOKEN : ${widget.token}");
     connectSocket(
       widget.roomName,
       widget.userName,
       widget.email,
     );
     if (widget.memberEmails != null) {
+      print("Iam insdie init state chat window");
+      print("User name: " + widget.userName);
+      print("Email: " + widget.email);
+      print("Room name: " + widget.roomName);
+      print("memberEmails: ");
+      print(widget.memberEmails);
       addGroupMembers(
         widget.userName,
         widget.email,
@@ -51,6 +58,8 @@ class _ChatInboxState extends State<ChatInbox> {
     }
     super.initState();
   }
+
+  // late final ScrollController scrollController = ScrollController();
 
   Future<void> addGroupMembers(String userName, String email,
       List<String>? memberEmails, String roomName, var token) async {
@@ -114,6 +123,7 @@ class _ChatInboxState extends State<ChatInbox> {
       socketOptions: options,
     );
     await socket.connect();
+
     _channel = socket.channel("chat:$roomName");
     _channel.on("new_message", takeMessage);
     _channel.on("archived_message", takeArchivedMessage);
@@ -121,6 +131,9 @@ class _ChatInboxState extends State<ChatInbox> {
   }
 
   Future<String> fetchToken(String userName, String email) async {
+    print("Chat Window: ");
+    print("Email $email");
+    print("Username $userName");
     try {
       final body = jsonEncode({
         'apiKey': "{api-key}",
@@ -154,6 +167,7 @@ class _ChatInboxState extends State<ChatInbox> {
     );
     messages.add(newMessage);
     messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    //scrollController.jumpTo(scrollController.position.maxScrollExtent);
   }
 
   takeMessage(payload, ref, joinRef) {
@@ -164,7 +178,7 @@ class _ChatInboxState extends State<ChatInbox> {
       userName: payload["created_by_name"],
     );
     messages.add(newMessage);
-
+    // scrollController.jumpTo(scrollController.position.maxScrollExtent);
     //messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
   }
 
@@ -181,8 +195,7 @@ class _ChatInboxState extends State<ChatInbox> {
     return WillPopScope(
       onWillPop: () async {
         messages.clear();
-        widget.chatController!
-            .fetchRooms(widget.email, widget.userName, widget.token);
+        Navigator.pop(context);
         return true;
       },
       child: Scaffold(
@@ -241,7 +254,8 @@ class _ChatInboxState extends State<ChatInbox> {
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  // List<String> memberEmails = emailController.text.split(',');
+                                  List<String> memberEmails =
+                                      emailController.text.split(',');
                                   // chatController.addGroupMembers(
                                   //     widget.username, widget.email, memberEmails);
 
@@ -279,6 +293,7 @@ class _ChatInboxState extends State<ChatInbox> {
                 () => Expanded(
                   child: Scrollbar(
                     child: ListView.builder(
+                      // controller: scrollController,
                       key: Key(messages.length.toString()),
                       physics: const BouncingScrollPhysics(),
                       shrinkWrap: true,
@@ -404,6 +419,8 @@ class _ChatInboxState extends State<ChatInbox> {
                                   messages.sort((a, b) =>
                                       a.timestamp.compareTo(b.timestamp));
                                 });
+                                // scrollController.jumpTo(
+                                //     scrollController.position.maxScrollExtent);
                               } else {
                                 Fluttertoast.showToast(
                                   msg: "Please enter user name",
