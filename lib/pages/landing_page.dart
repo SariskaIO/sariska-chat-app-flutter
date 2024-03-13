@@ -23,7 +23,7 @@ class _LandingPageState extends State<LandingPage> {
   ChatController chatController = ChatController();
 
   Future<void> _checkUserExistence() async {
-    String username = _usernameController.text;
+    String username = _usernameController.text; // this is email
 
     var token = await chatController.fetchToken(
       username,
@@ -42,10 +42,13 @@ class _LandingPageState extends State<LandingPage> {
         },
       );
 
+      print("Response from check user existence ");
+      print(response.body);
+
       if (response.statusCode == 200) {
         var data = json.decode(response.body);
         if (data['exists']) {
-          _navigateToNextPage(data['user']);
+          _navigateToNextPage(data['user'], token);
         } else {
           _showSignUpForm();
         }
@@ -152,14 +155,15 @@ class _LandingPageState extends State<LandingPage> {
           'Authorization': 'Bearer $token',
         },
       );
-
+      print("Signup Response");
+      print(response.body);
       if (response.statusCode == 200) {
         Navigator.pop(context);
         Map<String, dynamic>? userData = {
-          'user_id': userId,
-          'email': email,
+          'name': userId,
+          'id': email,
         };
-        _navigateToNextPage(userData);
+        _navigateToNextPage(userData, token);
       } else {
         print('Registration failed. Status code: ${response.statusCode}');
         print('Registration failed with error message ' + response.body);
@@ -169,8 +173,11 @@ class _LandingPageState extends State<LandingPage> {
     }
   }
 
-  void _navigateToNextPage([Map<String, dynamic>? userData]) {
+  void _navigateToNextPage(Map<String, dynamic>? userData, var token) {
     print('Navigating to the next page');
+    print("User data values: ");
+    print(userData);
+
     if (userData != null) {
       print('User ID: ${userData['user_id']}');
       print('Email: ${userData['email']}');
@@ -178,8 +185,9 @@ class _LandingPageState extends State<LandingPage> {
         context,
         MaterialPageRoute(
           builder: (context) => ChatScreen(
-            username: userData['id'],
-            email: userData['name'],
+            username: userData['name'],
+            email: userData['id'],
+            token: token,
           ),
         ),
       );
@@ -197,8 +205,7 @@ class _LandingPageState extends State<LandingPage> {
               fontWeight: FontWeight.w600,
               letterSpacing: 1.5),
         ),
-        backgroundColor:
-            AppColors.colorPrimary, // Apply greenAccent color to app bar
+        backgroundColor: AppColors.colorPrimary,
       ),
       body: Stack(
         children: [
@@ -227,7 +234,7 @@ class _LandingPageState extends State<LandingPage> {
                   controller: _usernameController,
                   decoration: InputDecoration(
                     prefixIcon: const Icon(IconlyLight.profile),
-                    labelText: 'Enter Username',
+                    labelText: 'Enter Email',
                     filled: true,
                     fillColor: AppColors.colorPrimary.withOpacity(0.1),
                     border: OutlineInputBorder(

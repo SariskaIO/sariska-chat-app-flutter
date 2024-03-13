@@ -9,14 +9,15 @@ import '../components/expandable_floating_button.dart';
 import 'package:intl/intl.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({
-    super.key,
-    required this.username,
-    required this.email,
-  });
+  ChatScreen(
+      {super.key,
+      required this.username,
+      required this.email,
+      required this.token});
 
   final String username;
   final String email;
+  var token;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -24,18 +25,19 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   int currentPage = 1;
-
-  static const _actionTitles = ['Create Group', 'Start Chat', 'Join Group'];
-
+  static const _actionTitles = ['Create Group', 'Start Chat'];
   Timer? _timer;
-
   late ChatController chatController;
 
   @override
   void initState() {
     super.initState();
     chatController = Get.put(ChatController());
-    chatController.fetchRooms(widget.username, widget.email);
+    chatController.fetchRooms(
+      widget.email,
+      widget.username,
+      widget.token,
+    );
     _startTimer();
   }
 
@@ -52,7 +54,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _refreshList() {
-    chatController.fetchRooms(widget.username, widget.email);
+    // chatController.fetchRooms( widget.email,widget.username);
     setState(() {});
   }
 
@@ -90,6 +92,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 userName: widget.username,
                                 isGroup: true,
                                 email: widget.email,
+                                token: widget.token,
                               ),
                             ),
                           );
@@ -202,13 +205,10 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 String groupName = chatController.typedGroupName.text;
-                // List<String> memberEmails = emailController.text.split(',');
-                // chatController.addGroupMembers(
-                //     widget.username, widget.email, memberEmails);
-
-                Navigator.pushReplacement(
+                List<String> memberEmails = emailController.text.split(',');
+                Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (context) => ChatInbox(
@@ -216,8 +216,16 @@ class _ChatScreenState extends State<ChatScreen> {
                       userName: widget.username,
                       isGroup: true,
                       email: widget.email,
+                      token: widget.token,
                     ),
                   ),
+                );
+                await chatController.addGroupMembers(
+                  widget.username,
+                  widget.email,
+                  memberEmails,
+                  groupName,
+                widget.token
                 );
               },
               child: const Text('Create group'),
@@ -271,10 +279,11 @@ class _ChatScreenState extends State<ChatScreen> {
             TextButton(
               onPressed: () {
                 chatController.searchUserEmail(
-                  "gaurav",
-                  widget.email,
-                  context,
-                );
+                    widget.username,
+                    chatController.typedEmail.text,
+                    context,
+                    widget.token,
+                    chatController);
               },
               child: const Text('Start Chat'),
             ),
