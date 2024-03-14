@@ -329,46 +329,69 @@ class _ChatInboxState extends State<ChatInbox> {
                                       ? MainAxisAlignment.start
                                       : MainAxisAlignment.end,
                                   children: [
-                                    CircleAvatar(
-                                      backgroundColor: AppColors.colorSecondary,
-                                      child: Text(
-                                        messages[index]
-                                            .userName
-                                            .substring(0, 1),
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                    ),
+                                    messages[index].isSender
+                                        ? CircleAvatar(
+                                            backgroundColor:
+                                                AppColors.colorSecondary,
+                                            child: Text(
+                                              messages[index]
+                                                  .userName
+                                                  .substring(0, 1),
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          )
+                                        : Text(""),
                                     const SizedBox(width: 10),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.only(
-                                          topRight: messages[index].isSender
-                                              ? const Radius.circular(8)
-                                              : const Radius.circular(10),
-                                          bottomRight: messages[index].isSender
-                                              ? const Radius.circular(10)
-                                              : const Radius.circular(8),
-                                          bottomLeft: const Radius.circular(8),
-                                          topLeft: const Radius.circular(8),
+                                    Flexible(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                            topRight: messages[index].isSender
+                                                ? const Radius.circular(8)
+                                                : const Radius.circular(10),
+                                            bottomRight:
+                                                messages[index].isSender
+                                                    ? const Radius.circular(10)
+                                                    : const Radius.circular(8),
+                                            bottomLeft:
+                                                const Radius.circular(8),
+                                            topLeft: const Radius.circular(8),
+                                          ),
+                                          color: messages[index].isSender
+                                              ? AppColors.colorSecondary
+                                              : AppColors.colorSecondary,
                                         ),
-                                        color: messages[index].isSender
-                                            ? AppColors.colorSecondary
-                                            : AppColors.colorSecondary,
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text(
-                                          messages[index].message,
-                                          style: TextStyle(
-                                            color: messages[index].isSender
-                                                ? Colors.white
-                                                : Colors.white,
-                                            fontSize: 16,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Text(
+                                            messages[index].message,
+                                            textAlign: TextAlign.justify,
+                                            style: TextStyle(
+                                              color: messages[index].isSender
+                                                  ? Colors.white
+                                                  : Colors.white,
+                                              fontSize: 16,
+                                              // Handle overflow
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
+                                    const SizedBox(width: 10),
+                                    !messages[index].isSender
+                                        ? CircleAvatar(
+                                            backgroundColor:
+                                                AppColors.colorSecondary,
+                                            child: Text(
+                                              messages[index]
+                                                  .userName
+                                                  .substring(0, 1),
+                                              style: const TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          )
+                                        : Text(""),
                                   ],
                                 ),
                               ],
