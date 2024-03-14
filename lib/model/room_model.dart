@@ -13,7 +13,7 @@ class Room {
     return Room(
       mostRecentMessage: json['most_recent_message'],
       roomId: json['room_id'],
-      sessionId: json['session_id'],
+      sessionId: json['session_id'] ?? "temp",
     );
   }
 }

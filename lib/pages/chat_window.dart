@@ -51,7 +51,7 @@ class _ChatInboxState extends State<ChatInbox> {
     try {
       for (var i = 0; i < memberEmails!.length; i++) {
         String apiUrl =
-            'http://api.dev.sariska.io/api/v1/messaging/rooms/$roomName/users/${memberEmails[i]}';
+            'http://api.dev.sariska.io/api/v1/messaging/rooms/$roomName/users/${memberEmails[i].trim()}';
         var response = await http.post(
           Uri.parse(apiUrl),
           headers: {
@@ -130,7 +130,7 @@ class _ChatInboxState extends State<ChatInbox> {
     print("Username $userName");
     try {
       final body = jsonEncode({
-        'apiKey': "{api-key}",
+        'apiKey': "2ffd6f9497ce12122f30d5ec26f1ed923a8a47f98ebc2a8f2b",
         'user': {
           'id': email,
           'name': userName,
@@ -249,10 +249,10 @@ class _ChatInboxState extends State<ChatInbox> {
                             ),
                             actions: [
                               TextButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   List<String> memberEmails =
                                       emailController.text.split(',');
-                                  addGroupMembers(
+                                  await addGroupMembers(
                                     widget.userName,
                                     widget.email,
                                     memberEmails,
