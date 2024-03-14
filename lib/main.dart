@@ -1,356 +1,158 @@
 import 'dart:io';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:upi_pay/upi_pay.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:quantupi/quantupi.dart';
 
-void main() => runApp(App());
+void main() => runApp(const MyApp());
 
-class App extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('UPI Pay'),
-        ),
-        body: Screen(),
-      ),
-    );
-  }
+  State<MyApp> createState() => _MyAppState();
 }
 
-class Screen extends StatefulWidget {
-  @override
-  _ScreenState createState() => _ScreenState();
-}
+class _MyAppState extends State<MyApp> {
+  String data = 'Testing plugin';
 
-class _ScreenState extends State<Screen> {
-  String? _upiAddrError;
-
-  final _upiAddressController = TextEditingController();
-  final _amountController = TextEditingController();
-
-  bool _isUpiEditable = false;
-  List<ApplicationMeta>? _apps;
+  String appname = paymentappoptions[0];
 
   @override
   void initState() {
     super.initState();
-
-    _amountController.text =
-        (Random.secure().nextDouble() * 10).toStringAsFixed(2);
-
-    Future.delayed(Duration(milliseconds: 0), () async {
-      _apps = await UpiPay.getInstalledUpiApplications(
-          statusType: UpiApplicationDiscoveryAppStatusType.all);
-      setState(() {});
-    });
   }
 
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _upiAddressController.dispose();
-    super.dispose();
-  }
-
-  void _generateAmount() {
-    setState(() {
-      _amountController.text =
-          (Random.secure().nextDouble() * 10).toStringAsFixed(2);
-    });
-  }
-
-  Future<void> _onTap(ApplicationMeta app) async {
-    final err = _validateUpiAddress(_upiAddressController.text);
-    if (err != null) {
-      setState(() {
-        _upiAddrError = err;
-      });
-      return;
-    }
-    setState(() {
-      _upiAddrError = null;
-    });
-
-    final transactionRef = Random.secure().nextInt(1 << 32).toString();
-    print("Starting transaction with id $transactionRef");
-
-    final a = await UpiPay.initiateTransaction(
-      amount: _amountController.text,
-      app: app.upiApplication,
-      receiverName: 'Sharad',
-      receiverUpiAddress: _upiAddressController.text,
-      transactionRef: transactionRef,
-      transactionNote: 'UPI Payment',
-      // merchantCode: '7372',
+  Future<String> initiateTransaction({QuantUPIPaymentApps? app}) async {
+    Quantupi upi = Quantupi(
+      receiverUpiId: 'merchant737120.augp@aubank',
+      receiverName: 'Tester',
+      transactionRefId: 'TestingId',
+      transactionNote: 'Not actual. Just an example.',
+      amount: 1.0,
+      appname: app,
     );
+    String response = await upi.startTransaction();
 
-    print(a);
+    return response;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: ListView(
-        children: <Widget>[
-          _vpa(),
-          if (_upiAddrError != null) _vpaError(),
-          _amount(),
-          if (Platform.isIOS) _submitButton(),
-          Platform.isAndroid ? _androidApps() : _iosApps(),
-        ],
-      ),
-    );
-  }
-
-  Widget _vpa() {
-    return Container(
-      margin: EdgeInsets.only(top: 32),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: TextFormField(
-              controller: _upiAddressController,
-              enabled: _isUpiEditable,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: 'address@upi',
-                labelText: 'Receiving UPI Address',
-              ),
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.only(left: 8),
-            child: IconButton(
-              icon: Icon(
-                _isUpiEditable ? Icons.check : Icons.edit,
-              ),
-              onPressed: () {
-                setState(() {
-                  _isUpiEditable = !_isUpiEditable;
-                });
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _vpaError() {
-    return Container(
-      margin: EdgeInsets.only(top: 4, left: 12),
-      child: Text(
-        _upiAddrError!,
-        style: TextStyle(color: Colors.red),
-      ),
-    );
-  }
-
-  Widget _amount() {
-    return Container(
-      margin: EdgeInsets.only(top: 32),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: TextField(
-              controller: _amountController,
-              readOnly: true,
-              enabled: false,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(),
-                labelText: 'Amount',
-              ),
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.only(left: 8),
-            child: IconButton(
-              icon: Icon(Icons.loop),
-              onPressed: _generateAmount,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _submitButton() {
-    return Container(
-      margin: EdgeInsets.only(top: 32),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            child: MaterialButton(
-              onPressed: () async => await _onTap(_apps![0]),
-              child: Text('Initiate Transaction',
-                  style: Theme.of(context)
-                      .textTheme
-                      .button!
-                      .copyWith(color: Colors.white)),
-              height: 48,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _androidApps() {
-    return Container(
-      margin: EdgeInsets.only(top: 32, bottom: 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            margin: EdgeInsets.only(bottom: 12),
-            child: Text(
-              'Pay Using',
-              style: Theme.of(context).textTheme.bodyText1,
-            ),
-          ),
-          if (_apps != null) _appsGrid(_apps!.map((e) => e).toList()),
-        ],
-      ),
-    );
-  }
-
-  Widget _iosApps() {
-    return Container(
-      margin: EdgeInsets.only(top: 32, bottom: 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Container(
-            margin: EdgeInsets.only(bottom: 24),
-            child: Text(
-              'One of these will be invoked automatically by your phone to '
-              'make a payment',
-              style: Theme.of(context).textTheme.bodyText2,
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            child: Text(
-              'Detected Installed Apps',
-              style: Theme.of(context).textTheme.bodyText1,
-            ),
-          ),
-          if (_apps != null) _discoverableAppsGrid(),
-          Container(
-            margin: const EdgeInsets.only(top: 12, bottom: 12),
-            child: Text(
-              'Other Supported Apps (Cannot detect)',
-              style: Theme.of(context).textTheme.bodyText1,
-            ),
-          ),
-          if (_apps != null) _nonDiscoverableAppsGrid(),
-        ],
-      ),
-    );
-  }
-
-  GridView _discoverableAppsGrid() {
-    List<ApplicationMeta> metaList = [];
-    _apps!.forEach((e) {
-      if (e.upiApplication.discoveryCustomScheme != null) {
-        metaList.add(e);
-      }
-    });
-    return _appsGrid(metaList);
-  }
-
-  GridView _nonDiscoverableAppsGrid() {
-    List<ApplicationMeta> metaList = [];
-    _apps!.forEach((e) {
-      if (e.upiApplication.discoveryCustomScheme == null) {
-        metaList.add(e);
-      }
-    });
-    return _appsGrid(metaList);
-  }
-
-  GridView _appsGrid(List<ApplicationMeta> apps) {
-    apps.sort((a, b) => a.upiApplication
-        .getAppName()
-        .toLowerCase()
-        .compareTo(b.upiApplication.getAppName().toLowerCase()));
-    return GridView.count(
-      crossAxisCount: 4,
-      shrinkWrap: true,
-      mainAxisSpacing: 4,
-      crossAxisSpacing: 4,
-      // childAspectRatio: 1.6,
-      physics: const NeverScrollableScrollPhysics(),
-      children: apps
-          .map(
-            (it) => Material(
-              key: ObjectKey(it.upiApplication),
-              // color: Colors.grey[200],
-              child: InkWell(
-                onTap: Platform.isAndroid ? () async => await _onTap(it) : null,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    it.iconImage(48),
-                    Container(
-                      margin: EdgeInsets.only(top: 4),
-                      alignment: Alignment.center,
-                      child: Text(
-                        it.upiApplication.getAppName(),
-                        textAlign: TextAlign.center,
+    bool isios = !kIsWeb && Platform.isIOS;
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              if (isios)
+                DropdownButton<String>(
+                  value: appname,
+                  icon: const Icon(Icons.arrow_drop_down),
+                  iconSize: 24,
+                  elevation: 16,
+                  underline: Container(
+                    height: 0,
+                    // color: ,
+                  ),
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      appname = newValue!;
+                    });
+                  },
+                  items: paymentappoptions
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                        ),
+                        child: Center(
+                          child: Text(
+                            value,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    );
+                  }).toList(),
+                ),
+              if (isios) const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  String value = await initiateTransaction(
+                    app: isios ? appoptiontoenum(appname) : null,
+                  );
+                  setState(() {
+                    data = value;
+                  });
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 15,
+                  ),
+                ),
+                child: const Text(
+                  "Tap to pay",
+                  style: TextStyle(fontSize: 20),
                 ),
               ),
-            ),
-          )
-          .toList(),
+              const SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(
+                  data,
+                  style: const TextStyle(fontSize: 20),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
     );
   }
+
+  QuantUPIPaymentApps appoptiontoenum(String appname) {
+    switch (appname) {
+      case 'Amazon Pay':
+        return QuantUPIPaymentApps.amazonpay;
+      case 'BHIMUPI':
+        return QuantUPIPaymentApps.bhimupi;
+      case 'Google Pay':
+        return QuantUPIPaymentApps.googlepay;
+      case 'Mi Pay':
+        return QuantUPIPaymentApps.mipay;
+      case 'Mobikwik':
+        return QuantUPIPaymentApps.mobikwik;
+      case 'Airtel Thanks':
+        return QuantUPIPaymentApps.myairtelupi;
+      case 'Paytm':
+        return QuantUPIPaymentApps.paytm;
+
+      case 'PhonePe':
+        return QuantUPIPaymentApps.phonepe;
+      case 'SBI PAY':
+        return QuantUPIPaymentApps.sbiupi;
+      default:
+        return QuantUPIPaymentApps.googlepay;
+    }
+  }
 }
 
-String? _validateUpiAddress(String value) {
-  if (value.isEmpty) {
-    return 'UPI VPA is required.';
-  }
-  if (value.split('@').length != 2) {
-    return 'Invalid UPI VPA';
-  }
-  return null;
-}
-
-
-
-
-
-// import 'package:flutter/material.dart';
-// import 'package:sariska_chat_app_flutter/pages/landing_page.dart';
-// import 'components/app_colors.dart';
-
-// void main() {
-//   runApp(const MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       theme: ThemeData(
-//         colorScheme: ColorScheme.fromSeed(
-//           seedColor: AppColors.colorPrimary,
-//         ),
-//       ),
-//       home: const LandingPage(),
-//     );
-//   }
-// }
+const List<String> paymentappoptions = [
+  'Amazon Pay',
+  'BHIMUPI',
+  'Google Pay',
+  'Mi Pay',
+  'Mobikwik',
+  'Airtel Thanks',
+  'Paytm',
+  'PhonePe',
+  'SBI PAY',
+];
