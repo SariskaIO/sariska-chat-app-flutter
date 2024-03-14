@@ -164,6 +164,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "quantupi",
+      "rootUri": "file:///Users/gaurair/.pub-cache/hosted/pub.dev/quantupi-0.0.6",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
       "name": "sky_engine",
       "rootUri": "file:///opt/homebrew/Caskroom/flutter/3.16.2/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
@@ -242,7 +248,7 @@
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-03-14T07:56:30.160867Z",
+  "generated": "2024-03-14T17:42:13.420526Z",
   "generator": "pub",
   "generatorVersion": "3.3.1"
 }
