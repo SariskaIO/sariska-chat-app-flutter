@@ -120,7 +120,7 @@ class ChatController extends GetxController {
     print("Username $userName");
     try {
       final body = jsonEncode({
-        'apiKey': "2ffd6f9497ce12122f30d5ec26f1ed923a8a47f98ebc2a8f2b",
+        'apiKey': "{api-key}",
         'user': {
           'id': email,
           'name': userName,
