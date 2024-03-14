@@ -44,6 +44,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "decimal",
+      "rootUri": "file:///Users/gaurair/.pub-cache/hosted/pub.dev/decimal-1.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "fake_async",
       "rootUri": "file:///Users/gaurair/.pub-cache/hosted/pub.dev/fake_async-1.3.1",
       "packageUri": "lib/",
@@ -164,6 +170,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "rational",
+      "rootUri": "file:///Users/gaurair/.pub-cache/hosted/pub.dev/rational-1.2.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "sky_engine",
       "rootUri": "file:///opt/homebrew/Caskroom/flutter/3.16.2/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
@@ -212,6 +224,18 @@
       "languageVersion": "2.17"
     },
     {
+      "name": "universal_io",
+      "rootUri": "file:///Users/gaurair/.pub-cache/hosted/pub.dev/universal_io-2.2.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.17"
+    },
+    {
+      "name": "upi_pay",
+      "rootUri": "file:///Users/gaurair/.pub-cache/hosted/pub.dev/upi_pay-1.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "vector_math",
       "rootUri": "file:///Users/gaurair/.pub-cache/hosted/pub.dev/vector_math-2.1.4",
       "packageUri": "lib/",
@@ -242,7 +266,7 @@
       "languageVersion": "3.3"
     }
   ],
-  "generated": "2024-03-14T07:56:30.160867Z",
+  "generated": "2024-03-14T08:11:15.601964Z",
   "generator": "pub",
   "generatorVersion": "3.3.1"
 }

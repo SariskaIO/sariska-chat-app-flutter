@@ -130,7 +130,7 @@ class _ChatInboxState extends State<ChatInbox> {
     print("Username $userName");
     try {
       final body = jsonEncode({
-        'apiKey': "{api-key}",
+        'apiKey': "2ffd6f9497ce12122f30d5ec26f1ed923a8a47f98ebc2a8f2b",
         'user': {
           'id': email,
           'name': userName,
