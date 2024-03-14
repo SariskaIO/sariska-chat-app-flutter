@@ -15,7 +15,7 @@ class ChatController extends GetxController {
   TextEditingController typedGroupName = TextEditingController();
 
   late String userName;
-  late Rooms rooms = Rooms(rooms: []);
+  Rooms rooms = Rooms(rooms: []);
 
   Future<void> fetchRooms(String email, String userName, var token) async {
     print("Fetch room: ");
@@ -33,8 +33,11 @@ class ChatController extends GetxController {
       print("Result");
       print(result);
 
-      rooms.rooms =
-          result["rooms"] != null ? List<String>.from(result["rooms"]) : [];
+      rooms.rooms.clear();
+      if (result["rooms"] != null) {
+        rooms.rooms = List<Room>.from(
+            result["rooms"].map((roomJson) => Room.fromJson(roomJson)));
+      }
     } catch (error) {
       print('Error fetching rooms: $error');
     }
@@ -103,7 +106,6 @@ class ChatController extends GetxController {
       }
     } catch (error) {
       print('Error searching user email: $error');
-      // Handle error here if needed
     }
   }
 

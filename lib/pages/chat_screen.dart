@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
 import 'package:get/get.dart';
 import 'package:sariska_chat_app_flutter/components/app_colors.dart';
+import 'package:sariska_chat_app_flutter/model/room_model.dart';
 import '../controller/chat_controller.dart';
 import 'chat_window.dart';
 import '../components/expandable_floating_button.dart';
@@ -91,9 +92,11 @@ class _ChatScreenState extends State<ChatScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => ChatInbox(
-                                roomName: chatController.rooms.rooms![index],
+                                roomName:
+                                    chatController.rooms.rooms[index].sessionId,
                                 userName: widget.username,
-                                isGroup: !chatController.rooms.rooms![index]
+                                isGroup: !chatController
+                                    .rooms.rooms[index].sessionId
                                     .contains("+"),
                                 email: widget.email,
                                 token: widget.token,
@@ -105,12 +108,23 @@ class _ChatScreenState extends State<ChatScreen> {
                         leading: CircleAvatar(
                           backgroundColor: AppColors.colorPrimary,
                           child: Text(
-                            chatController.rooms.rooms![index].substring(0, 1),
+                            chatController.rooms.rooms[index].sessionId
+                                .substring(0, 1)
+                                .toUpperCase(),
                           ),
                         ),
-                        title: Text(chatController.rooms.rooms![index]),
+                        title:
+                            Text(chatController.rooms.rooms[index].sessionId),
                         trailing: Text(
-                            DateFormat.Hm().format(DateTime.now()).toString()),
+                          chatController.rooms.rooms[index].mostRecentMessage !=
+                                  null
+                              ? DateFormat.Hm().format(
+                                  DateTime.parse(chatController.rooms
+                                          .rooms[index].mostRecentMessage!)
+                                      .toLocal(),
+                                )
+                              : '',
+                        ),
                       ),
                       const Divider(
                         thickness: 0.3,
@@ -205,7 +219,6 @@ class _ChatScreenState extends State<ChatScreen> {
               onPressed: () async {
                 String groupName = chatController.typedGroupName.text;
                 List<String> memberEmails = emailController.text.split(',');
-                chatController.rooms.rooms!.add(groupName);
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(

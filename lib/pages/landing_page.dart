@@ -50,13 +50,40 @@ class _LandingPageState extends State<LandingPage> {
           _showSignUpForm();
         }
       } else if (response.statusCode == 404) {
+        Fluttertoast.showToast(
+          msg: "Status Code: ${response.statusCode}",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
         _showSignUpForm();
       } else {
         print(
             'Error checking user existence. Status code: ${response.statusCode}');
+        Fluttertoast.showToast(
+          msg: "Status Code: ${response.statusCode}",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
         _showSignUpForm();
       }
     } catch (error) {
+      Fluttertoast.showToast(
+        msg: "Status Code: ${error.toString()}",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
       print('Error checking user existence: $error');
     }
   }

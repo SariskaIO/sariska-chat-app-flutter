@@ -1,15 +1,43 @@
-class Rooms {
-  List<String>? rooms;
+class Room {
+  final String? mostRecentMessage;
+  final int roomId;
+  final String sessionId;
 
-  Rooms({this.rooms});
+  Room({
+    this.mostRecentMessage,
+    required this.roomId,
+    required this.sessionId,
+  });
 
-  Rooms.fromJson(Map<String, dynamic> json) {
-    rooms = json['rooms'].cast<String>();
+  factory Room.fromJson(Map<String, dynamic> json) {
+    return Room(
+      mostRecentMessage: json['most_recent_message'],
+      roomId: json['room_id'],
+      sessionId: json['session_id'],
+    );
   }
+}
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['rooms'] = rooms;
-    return data;
+class Rooms {
+  List<Room> rooms;
+
+  Rooms({required this.rooms});
+}
+
+class RoomsResponse {
+  final List<Room> rooms;
+
+  RoomsResponse({
+    required this.rooms,
+  });
+
+  factory RoomsResponse.fromJson(Map<String, dynamic> json) {
+    var roomList = json['rooms'] as List;
+    List<Room> rooms =
+        roomList.map((roomJson) => Room.fromJson(roomJson)).toList();
+
+    return RoomsResponse(
+      rooms: rooms,
+    );
   }
 }
