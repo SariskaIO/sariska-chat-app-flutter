@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:phoenix_wings/phoenix_wings.dart';
 import 'package:sariska_chat_app_flutter/pages/chat_window.dart';
 import '../model/room_model.dart';
 

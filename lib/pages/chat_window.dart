@@ -40,8 +40,6 @@ class _ChatInboxState extends State<ChatInbox> {
     super.initState();
   }
 
-  // late final ScrollController scrollController = ScrollController();
-
   Future<void> addGroupMembers(String userName, String email,
       List<String>? memberEmails, String roomName, var token) async {
     print("addGroupMembers called");
@@ -153,8 +151,10 @@ class _ChatInboxState extends State<ChatInbox> {
     }
   }
 
+  bool isSortingInProgress = false;
+  List<Message> archivedMessages = <Message>[];
+
   takeArchivedMessage(payload, ref, joinRef) {
-    print("Iam archived");
     final newMessage = Message(
       message: payload["content"],
       isSender: payload["created_by_name"] == widget.userName ? false : true,
@@ -162,8 +162,7 @@ class _ChatInboxState extends State<ChatInbox> {
       userName: payload["created_by_name"],
     );
     messages.add(newMessage);
-    messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-    //scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    setState(() {});
   }
 
   takeMessage(payload, ref, joinRef) {
@@ -173,12 +172,13 @@ class _ChatInboxState extends State<ChatInbox> {
       timestamp: DateTime.parse(payload["inserted_at"]),
       userName: payload["created_by_name"],
     );
-    messages.add(newMessage);
-    // scrollController.jumpTo(scrollController.position.maxScrollExtent);
-    //messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+    messages.insert(0, newMessage);
   }
 
   sendMessage() async {
+    print("SEND MESSAGE");
+    print("Type Message: ${typedMessage.text}");
+    print("User Name: ${widget.userName}");
     _channel.push(event: "new_message", payload: {
       "content": typedMessage.text,
       "created_by_name": widget.userName,
@@ -293,6 +293,7 @@ class _ChatInboxState extends State<ChatInbox> {
                 () => Expanded(
                   child: Scrollbar(
                     child: ListView.builder(
+                      reverse: true,
                       // controller: scrollController,
                       key: Key(messages.length.toString()),
                       physics: const BouncingScrollPhysics(),
@@ -415,12 +416,6 @@ class _ChatInboxState extends State<ChatInbox> {
                             onPressed: () {
                               if (typedMessage.text.isNotEmpty) {
                                 sendMessage();
-                                setState(() {
-                                  messages.sort((a, b) =>
-                                      a.timestamp.compareTo(b.timestamp));
-                                });
-                                // scrollController.jumpTo(
-                                //     scrollController.position.maxScrollExtent);
                               } else {
                                 Fluttertoast.showToast(
                                   msg: "Please enter user name",
