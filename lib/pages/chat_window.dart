@@ -441,7 +441,7 @@ class _ChatInboxState extends State<ChatInbox> {
                                 sendMessage();
                               } else {
                                 Fluttertoast.showToast(
-                                  msg: "Please enter user name",
+                                  msg: "Please enter message",
                                   toastLength: Toast.LENGTH_LONG,
                                   gravity: ToastGravity.BOTTOM,
                                   timeInSecForIosWeb: 1,

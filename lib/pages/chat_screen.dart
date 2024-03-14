@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly/flutter_iconly.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:sariska_chat_app_flutter/components/app_colors.dart';
 import 'package:sariska_chat_app_flutter/model/room_model.dart';
@@ -219,20 +220,32 @@ class _ChatScreenState extends State<ChatScreen> {
               onPressed: () async {
                 String groupName = chatController.typedGroupName.text;
                 List<String> memberEmails = emailController.text.split(',');
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ChatInbox(
-                      roomName: groupName,
-                      userName: widget.username,
-                      isGroup: true,
-                      email: widget.email,
-                      token: widget.token,
-                      memberEmails: memberEmails,
-                      chatController: chatController,
+                if (groupName.isNotEmpty) {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatInbox(
+                        roomName: groupName,
+                        userName: widget.username,
+                        isGroup: true,
+                        email: widget.email,
+                        token: widget.token,
+                        memberEmails: memberEmails,
+                        chatController: chatController,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  Fluttertoast.showToast(
+                    msg: "Enter Group name",
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.red,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                }
               },
               child: const Text('Create group'),
             ),
