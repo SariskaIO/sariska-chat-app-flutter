@@ -146,7 +146,7 @@ class ChatController extends GetxController {
     try {
       for (var i = 0; i < memberEmails!.length; i++) {
         String apiUrl =
-            'http://api.dev.sariska.io/api/v1/messaging/rooms/$roomName/users/${memberEmails[i]}';
+            'http://api.dev.sariska.io/api/v1/messaging/rooms/$roomName/users/${memberEmails[i].trim()}';
         var response = await http.post(
           Uri.parse(apiUrl),
           headers: {
