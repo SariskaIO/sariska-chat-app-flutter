@@ -130,7 +130,7 @@ class _ChatInboxState extends State<ChatInbox> {
     print("Username $userName");
     try {
       final body = jsonEncode({
-        'apiKey': "{api-key}",
+        'apiKey': "22fd6f96d9c60c16282bc0f122f4ac9473c55faed2b23d992a",
         'user': {
           'id': email,
           'name': userName,
@@ -158,19 +158,38 @@ class _ChatInboxState extends State<ChatInbox> {
     final newMessage = Message(
       message: payload["content"],
       isSender: payload["created_by_name"] == widget.userName ? false : true,
-      timestamp: DateTime.parse(payload["inserted_at"]),
+      timestamp: DateTime.now(),
       userName: payload["created_by_name"],
+      // status: MessageStatus.sent,
     );
     messages.add(newMessage);
     setState(() {});
   }
 
+  // void updateMessageStatus(Message message, MessageStatus status) {
+  //   setState(() {
+  //     final index = messages.indexOf(message);
+  //     if (index != -1) {
+  //       messages[index] = Message(
+  //         message: message.message,
+  //         isSender: message.isSender,
+  //         timestamp: message.timestamp,
+  //         userName: message.userName,
+  //         status: status,
+  //       );
+  //     }
+  //   });
+  // }
+
   takeMessage(payload, ref, joinRef) {
     final newMessage = Message(
       message: payload["content"],
       isSender: payload["created_by_name"] == widget.userName ? false : true,
-      timestamp: DateTime.parse(payload["inserted_at"]),
+      timestamp: DateTime.now(),
+      // timestamp: DateTime.parse(payload["inserted_at"]),
       userName: payload["created_by_name"],
+      // status: MessageStatus.sent,
+
     );
     messages.insert(0, newMessage);
   }
@@ -192,6 +211,7 @@ class _ChatInboxState extends State<ChatInbox> {
       onWillPop: () async {
         messages.clear();
         Navigator.pop(context);
+
         return true;
       },
       child: Scaffold(
@@ -300,6 +320,24 @@ class _ChatInboxState extends State<ChatInbox> {
                       shrinkWrap: true,
                       itemCount: messages.length,
                       itemBuilder: (context, index) {
+                        // IconData statusIcon;
+                        // Color statusColor;
+
+                        // switch (messages[index].status) {
+                        //   case MessageStatus.sent:
+                        //     statusIcon = Icons.check;
+                        //     statusColor = Colors.grey;
+                        //     break;
+                        //   case MessageStatus.delivered:
+                        //     statusIcon = Icons.done_all;
+                        //     statusColor = Colors.grey;
+                        //     break;
+                        //   case MessageStatus.seen:
+                        //     statusIcon = Icons.done_all;
+                        //     statusColor = Colors.blue;
+                        //     break;
+                        // }
+
                         return Align(
                           alignment: messages[index].isSender
                               ? Alignment.topLeft

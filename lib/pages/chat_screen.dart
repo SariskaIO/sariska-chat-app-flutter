@@ -120,8 +120,8 @@ class _ChatScreenState extends State<ChatScreen> {
                           chatController.rooms.rooms[index].mostRecentMessage !=
                                   null
                               ? DateFormat.Hm().format(
-                                  DateTime.parse(chatController.rooms
-                                          .rooms[index].mostRecentMessage!)
+                                  DateTime.fromMicrosecondsSinceEpoch(int.parse(chatController.rooms
+                                          .rooms[index].mostRecentMessage!))
                                       .toLocal(),
                                 )
                               : '',
