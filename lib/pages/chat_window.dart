@@ -158,7 +158,9 @@ class _ChatInboxState extends State<ChatInbox> {
     final newMessage = Message(
       message: payload["content"],
       isSender: payload["created_by_name"] == widget.userName ? false : true,
-      timestamp: DateTime.parse(payload["inserted_at"]),
+      // timestamp: DateTime.parse(payload["inserted_at"]),
+      timestamp: DateTime.now(),
+
       userName: payload["created_by_name"],
     );
     messages.add(newMessage);
@@ -169,7 +171,8 @@ class _ChatInboxState extends State<ChatInbox> {
     final newMessage = Message(
       message: payload["content"],
       isSender: payload["created_by_name"] == widget.userName ? false : true,
-      timestamp: DateTime.parse(payload["inserted_at"]),
+      // timestamp: DateTime.parse(payload["inserted_at"]),
+     timestamp: DateTime.now(),
       userName: payload["created_by_name"],
     );
     messages.insert(0, newMessage);
